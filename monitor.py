@@ -17,24 +17,24 @@ print("Opening reservation page...")
 available = []
 
 with sync_playwright() as p:
-browser = p.chromium.launch(headless=True)
+    browser = p.chromium.launch(headless=True)
 
-```
-page = browser.new_page()
+    ```
+    page = browser.new_page()
 
-page.goto(
-    URL,
-    wait_until="networkidle",
-    timeout=60000
-)
+    page.goto(
+        URL,
+        wait_until="networkidle",
+        timeout=60000
+    )
 
-print("Page loaded")
+    print("Page loaded")
 
-page.wait_for_timeout(5000)
+    page.wait_for_timeout(5000)
 
-page.screenshot(path="debug.png", full_page=True)
+    page.screenshot(path="debug.png", full_page=True)
 
-elements = page.query_selector_all("button, div, span")
+    elements = page.query_selector_all("button, div, span")
 
 print(f"Found {len(elements)} elements")
 
