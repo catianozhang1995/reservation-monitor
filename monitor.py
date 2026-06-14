@@ -32,7 +32,7 @@ print("Page loaded")
 
 page.wait_for_timeout(5000)
 
-print(page.content()[:5000])
+page.screenshot(path="debug.png", full_page=True)
 
 elements = page.query_selector_all("button, div, span")
 
