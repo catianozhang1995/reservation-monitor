@@ -10,90 +10,87 @@ EMAIL_TO = os.environ["EMAIL_TO"]
 
 BASE_URL = "https://reservationv5.frontdesksuite.com/us/us/Home/Index?pageId=6326ea69-cea3-4179-a81c-5ebb22bbdb00&culture=en&uiculture=en"
 
-print("=" * 50)
+print("=" * 60)
 print(f"Started: {datetime.utcnow()} UTC")
 
-available = []
+results = []
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
     page = browser.new_page()
 
+    # 打开主页
     print("Opening home page...")
     page.goto(BASE_URL, wait_until="networkidle")
-
     page.wait_for_timeout(3000)
 
-    # 1. Biometrics
+    # 按流程进入预约
     page.get_by_text("Biometrics for residence permit/residence card").click()
-    print("Clicked Biometrics")
-
     page.wait_for_timeout(2000)
 
-    # 2. Book appointment
     page.get_by_text("Book appointment").click()
-    print("Clicked Book appointment")
-
     page.wait_for_timeout(2000)
 
-    # 3. Næstved
     page.get_by_text("Næstved").click()
-    print("Clicked Næstved")
-
     page.wait_for_timeout(2000)
 
-    # 4. 1 person
     page.get_by_text("1 person").click()
-    print("Clicked 1 person")
-
     page.wait_for_timeout(5000)
-
-    page.screenshot(path="calendar.png", full_page=True)
 
     print("Calendar loaded")
 
-    # 5. 找绿色日期（关键逻辑）
-    # 通常绿色会在 class 或 style 里体现
-    elements = page.query_selector_all("button, div, span")
+    # 找所有日期按钮（通常是数字）
+    day_buttons = page.query_selector_all("button")
 
-    for el in elements:
+    print(f"Found {len(day_buttons)} day buttons")
+
+    # 逐个点击日期
+    for i, btn in enumerate(day_buttons):
         try:
-            text = (el.inner_text() or "").strip()
-            cls = (el.get_attribute("class") or "").lower()
-            style = (el.get_attribute("style") or "").lower()
+            text = (btn.inner_text() or "").strip()
 
-            combined = f"{text} {cls} {style}".lower()
+            # 只处理数字日期（过滤图例/按钮）
+            if not text.isdigit():
+                continue
 
-            # 绿色通常代表可点击
-            if (
-                "green" in combined
-                or "available" in combined
-                or "ledig" in combined
-            ):
-                if text:
-                    available.append(text)
+            print(f"Checking day: {text}")
 
-        except:
-            pass
+            btn.click()
+            page.wait_for_timeout(1500)
+
+            # 检查是否出现 slot（关键）
+            slots = page.query_selector_all(
+                ".slot, button.available, div.available, [class*='slot'], [class*='available']"
+            )
+
+            if len(slots) > 0:
+                print(f"FOUND SLOT on day {text}")
+                results.append(text)
+
+        except Exception as e:
+            print(f"Error on day {text if 'text' in locals() else i}: {e}")
+            continue
 
     browser.close()
 
-print(f"Found {len(available)} available items")
+print("=" * 60)
+print(f"Total available days: {len(results)}")
 
-for a in available:
-    print(" ->", a)
+for r in results:
+    print(" ->", r)
 
-if available:
+# 发送邮件（只有真正有结果才发）
+if results:
     print("Sending email...")
 
     msg = MIMEText(
-        "发现可预约日期：\n\n"
-        + "\n".join(available)
+        "发现可预约日期（未来23天）：\n\n"
+        + "\n".join(results)
         + "\n\n"
         + BASE_URL
     )
 
-    msg["Subject"] = "预约空位提醒"
+    msg["Subject"] = "预约系统：发现可用slot"
     msg["From"] = EMAIL_USER
     msg["To"] = EMAIL_TO
 
@@ -104,7 +101,7 @@ if available:
     print("Email sent")
 
 else:
-    print("No availability found")
+    print("No slots found")
 
 print("Finished")
-print("=" * 50)
+print("=" * 60)
