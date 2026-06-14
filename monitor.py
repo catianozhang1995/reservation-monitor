@@ -37,6 +37,8 @@ with sync_playwright() as p:
     page.get_by_text("1 person").click()
     page.wait_for_timeout(5000)
 
+    page.screenshot(path="calendar.png", full_page=True)
+
     print("Calendar loaded")
 
     # 找所有日期按钮（通常是数字）
@@ -56,7 +58,7 @@ with sync_playwright() as p:
             print(f"Checking day: {text}")
 
             btn.click()
-            page.wait_for_timeout(1500)
+            page.wait_for_timeout(3000)
 
             # 检查是否出现 slot（关键）
             slots = page.query_selector_all(
