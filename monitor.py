@@ -8,7 +8,7 @@ EMAIL_USER = os.environ["EMAIL_USER"]
 EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 EMAIL_TO = os.environ["EMAIL_TO"]
 
-URL = "https://reservationv5.frontdesksuite.com/us/us/ReserveTime/TimeSelection?pageId=0481fc5c-fd6f-4971-9213-1edbaae1660a&buttonId=3b944ef0-52fa-4b3c-99cd-3618b7693390&culture=da"
+URL = "https://reservationv5.frontdesksuite.com/us/us/ReserveTime/TimeSelection?pageId=5b166bec-2954-4b7d-8b70-0e9e101a9340&buttonId=7293a6bc-bcb3-4772-abd3-c5ef051ef8b0&culture=da"
 
 print("=" * 50)
 print(f"Started: {datetime.utcnow()} UTC")
