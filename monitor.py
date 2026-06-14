@@ -19,7 +19,6 @@ available = []
 with sync_playwright() as p:
 browser = p.chromium.launch(headless=True)
 
-```
 page = browser.new_page()
 
 page.goto(
@@ -56,7 +55,6 @@ for el in elements:
         pass
 
 browser.close()
-```
 
 print(f"Matches found: {len(available)}")
 
@@ -66,7 +64,6 @@ print(f"  -> {slot}")
 if available:
 print("Appointment found. Sending email...")
 
-```
 msg = MIMEText(
     "发现预约空位：\n\n"
     + "\n".join(available)
@@ -83,7 +80,6 @@ with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
     smtp.send_message(msg)
 
 print("Email sent successfully")
-```
 
 else:
 print("No appointment available")
