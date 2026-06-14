@@ -93,7 +93,7 @@ with sync_playwright() as p:
 
             try:
                 # 👉 常见 next month 按钮（可能需要你微调文本）
-                next_btn = page.get_by_text("Next", exact=False)
+                next_btn = page.locator("button[aria-label*='Next'], text=>, text=Next month")
                 next_btn.click()
 
                 page.wait_for_timeout(3000)
