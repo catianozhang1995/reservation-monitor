@@ -17,44 +17,44 @@ print("Opening reservation page...")
 available = []
 
 with sync_playwright() as p:
-browser = p.chromium.launch(headless=True)
+    browser = p.chromium.launch(headless=True)
 
-page = browser.new_page()
+    page = browser.new_page()
 
-page.goto(
-    URL,
-    wait_until="networkidle",
-    timeout=60000
-)
+    page.goto(
+        URL,
+        wait_until="networkidle",
+        timeout=60000
+    )
 
-print("Page loaded")
+    print("Page loaded")
 
-page.wait_for_timeout(5000)
+    page.wait_for_timeout(5000)
 
-page.screenshot(path="debug.png", full_page=True)
+    page.screenshot(path="debug.png", full_page=True)
 
-elements = page.query_selector_all("button, div, span")
+    elements = page.query_selector_all("button, div, span")
 
-print(f"Found {len(elements)} elements")
+    print(f"Found {len(elements)} elements")
 
-for el in elements:
-    try:
-        text = (el.inner_text() or "").strip()
-        aria = el.get_attribute("aria-label") or ""
+    for el in elements:
+        try:
+            text = (el.inner_text() or "").strip()
+            aria = el.get_attribute("aria-label") or ""
 
-        combined = f"{text} {aria}".lower()
+            combined = f"{text} {aria}".lower()
 
-        if (
-            "ledig" in combined
-            or "available" in combined
-            or "appointment" in combined
-        ):
-            available.append(text or aria)
+            if (
+                "ledig" in combined
+                or "available" in combined
+                or "appointment" in combined
+            ):
+                available.append(text or aria)
 
-    except Exception:
-        pass
+        except Exception:
+            pass
 
-browser.close()
+    browser.close()
 
 print(f"Matches found: {len(available)}")
 
