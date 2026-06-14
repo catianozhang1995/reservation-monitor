@@ -8,20 +8,25 @@ on:
 
 jobs:
   check:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - run: pip install requests
+      - name: Install Python packages
+        run: |
+          pip install requests playwright
 
-      - run: python monitor.py
+      - name: Install Chromium
+        run: |
+          playwright install chromium
+
+      - name: Run monitor
+        run: python monitor.py
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
