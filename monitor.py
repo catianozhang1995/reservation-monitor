@@ -3,6 +3,9 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from playwright.sync_api import sync_playwright
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
 EMAIL_USER = os.environ["EMAIL_USER"]
 EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
@@ -83,24 +86,42 @@ for r in results:
 
 # 发送邮件（只有真正有结果才发）
 if results:
-    print("Sending email...")
+    print("Sending email with screenshot...")
 
-    msg = MIMEText(
+    msg = MIMEMultipart()
+    msg["Subject"] = "预约系统：发现可用slot"
+    msg["From"] = EMAIL_USER
+    msg["To"] = EMAIL_TO
+
+    # 邮件正文
+    body = MIMEText(
         "发现可预约日期（未来23天）：\n\n"
         + "\n".join(results)
         + "\n\n"
         + BASE_URL
     )
+    msg.attach(body)
 
-    msg["Subject"] = "预约系统：发现可用slot"
-    msg["From"] = EMAIL_USER
-    msg["To"] = EMAIL_TO
+    # 读取截图
+    with open("calendar.png", "rb") as f:
+        img = MIMEBase("application", "octet-stream")
+        img.set_payload(f.read())
 
+    encoders.encode_base64(img)
+    img.add_header(
+        "Content-Disposition",
+        "attachment",
+        filename="calendar.png"
+    )
+
+    msg.attach(img)
+
+    # 发送邮件
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(EMAIL_USER, EMAIL_PASSWORD)
         smtp.send_message(msg)
 
-    print("Email sent")
+    print("Email sent with screenshot")
 
 else:
     print("No slots found")
