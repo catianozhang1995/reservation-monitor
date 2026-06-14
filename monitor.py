@@ -12,20 +12,17 @@ URL = "https://reservationv5.frontdesksuite.com/us/us/ReserveTime/TimeSelection?
 
 print("=" * 50)
 print(f"Started: {datetime.utcnow()} UTC")
-print("Opening reservation page...")
 
 available = []
 
+# ------------------ 浏览器部分 ------------------
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
-
     page = browser.new_page()
 
-    page.goto(
-        URL,
-        wait_until="networkidle",
-        timeout=60000
-    )
+    print("Opening reservation page...")
+
+    page.goto(URL, wait_until="networkidle", timeout=60000)
 
     print("Page loaded")
 
@@ -56,12 +53,14 @@ with sync_playwright() as p:
 
     browser.close()
 
-    print(f"Matches found: {len(available)}")
+# ------------------ 逻辑分析部分 ------------------
+print(f"Matches found: {len(available)}")
 
-    for slot in available:
+for slot in available:
     print(f"  -> {slot}")
 
-    if available:
+# ------------------ 发邮件部分 ------------------
+if available:
     print("Appointment found. Sending email...")
 
     msg = MIMEText(
@@ -81,8 +80,8 @@ with sync_playwright() as p:
 
     print("Email sent successfully")
 
-    else:
+else:
     print("No appointment available")
 
-    print("Finished")
-    print("=" * 50)
+print("Finished")
+print("=" * 50)
