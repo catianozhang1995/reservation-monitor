@@ -1,5 +1,10 @@
+import os
 import smtplib
 from email.mime.text import MIMEText
+
+EMAIL_USER = os.environ["EMAIL_USER"]
+EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
+EMAIL_TO = os.environ["EMAIL_TO"]
 
 send_test = True
 
@@ -16,7 +21,6 @@ if send_test:
     msg["To"] = EMAIL_TO
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.set_debuglevel(1)  # 可选调试
         smtp.login(EMAIL_USER, EMAIL_PASSWORD)
         smtp.send_message(msg)
 
