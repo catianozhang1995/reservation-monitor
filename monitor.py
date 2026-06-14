@@ -17,6 +17,7 @@ print("=" * 60)
 print(f"Started: {datetime.utcnow()} UTC")
 
 results = []
+max_days = 27
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
@@ -44,37 +45,62 @@ with sync_playwright() as p:
 
     print("Calendar loaded")
 
-    # 找所有日期按钮（通常是数字）
-    day_buttons = page.query_selector_all("button")
+    checked_days = 0
 
-    print(f"Found {len(day_buttons)} day buttons")
+    while checked_days < max_days:
 
-    # 逐个点击日期
-    for i, btn in enumerate(day_buttons):
-        try:
-            text = (btn.inner_text() or "").strip()
+        print(f"Scanning month... checked so far: {checked_days}")
 
-            # 只处理数字日期（过滤图例/按钮）
-            if not text.isdigit():
+        day_buttons = page.query_selector_all("button")
+
+        found_days_this_month = 0
+
+        for btn in day_buttons:
+
+            if checked_days >= max_days:
+                break
+
+            try:
+                text = (btn.inner_text() or "").strip()
+
+                # 只处理日期数字
+                if not text.isdigit():
+                    continue
+
+                print(f"Clicking day: {text}")
+
+                btn.click()
+                page.wait_for_timeout(1500)
+
+                # 检查 slot（核心判断）
+                slots = page.query_selector_all(
+                    ".slot, button.available, div.available, [class*='slot'], [class*='available']"
+                )
+
+                if len(slots) > 0:
+                    print(f"FOUND SLOT on {text}")
+                    results.append(text)
+
+                checked_days += 1
+                found_days_this_month += 1
+
+            except Exception as e:
                 continue
 
-            print(f"Checking day: {text}")
+        # 如果这一月没找到任何“日期按钮”，说明可能需要翻月
+        if found_days_this_month == 0:
+            print("No more days in this month, switching month...")
 
-            btn.click()
-            page.wait_for_timeout(3000)
+            try:
+                # 👉 常见 next month 按钮（可能需要你微调文本）
+                next_btn = page.get_by_text("Next", exact=False)
+                next_btn.click()
 
-            # 检查是否出现 slot（关键）
-            slots = page.query_selector_all(
-                ".slot, button.available, div.available, [class*='slot'], [class*='available']"
-            )
+                page.wait_for_timeout(3000)
 
-            if len(slots) > 0:
-                print(f"FOUND SLOT on day {text}")
-                results.append(text)
-
-        except Exception as e:
-            print(f"Error on day {text if 'text' in locals() else i}: {e}")
-            continue
+            except Exception as e:
+                print("Cannot find next month button, stopping.")
+                break
 
     browser.close()
 
