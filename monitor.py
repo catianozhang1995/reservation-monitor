@@ -121,7 +121,7 @@ if results:
 
     # 邮件正文
     body = MIMEText(
-        "发现可预约日期（未来23天）：\n\n"
+        "发现可预约日期（跨月27天扫描）：\n\n"
         + "\n".join(results)
         + "\n\n"
         + BASE_URL
