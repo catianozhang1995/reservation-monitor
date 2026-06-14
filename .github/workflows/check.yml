@@ -1,8 +1,7 @@
 name: Check Appointment
 
 on:
-  repository_dispatch:
-    types: [my_5min_cron]
+  workflow_dispatch:
 
 jobs:
   check:
