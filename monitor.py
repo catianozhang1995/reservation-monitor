@@ -56,33 +56,33 @@ with sync_playwright() as p:
 
     browser.close()
 
-print(f"Matches found: {len(available)}")
+    print(f"Matches found: {len(available)}")
 
-for slot in available:
-print(f"  -> {slot}")
+    for slot in available:
+    print(f"  -> {slot}")
 
-if available:
-print("Appointment found. Sending email...")
+    if available:
+    print("Appointment found. Sending email...")
 
-msg = MIMEText(
-    "发现预约空位：\n\n"
-    + "\n".join(available)
-    + "\n\n"
-    + URL
-)
+    msg = MIMEText(
+        "发现预约空位：\n\n"
+        + "\n".join(available)
+        + "\n\n"
+        + URL
+    )
 
-msg["Subject"] = "预约空位提醒"
-msg["From"] = EMAIL_USER
-msg["To"] = EMAIL_TO
+    msg["Subject"] = "预约空位提醒"
+    msg["From"] = EMAIL_USER
+    msg["To"] = EMAIL_TO
 
-with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-    smtp.login(EMAIL_USER, EMAIL_PASSWORD)
-    smtp.send_message(msg)
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(EMAIL_USER, EMAIL_PASSWORD)
+        smtp.send_message(msg)
 
-print("Email sent successfully")
+    print("Email sent successfully")
 
-else:
-print("No appointment available")
+    else:
+    print("No appointment available")
 
-print("Finished")
-print("=" * 50)
+    print("Finished")
+    print("=" * 50)
