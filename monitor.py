@@ -35,7 +35,7 @@ with sync_playwright() as p:
     page.get_by_text("Book appointment").click()
     page.wait_for_timeout(2000)
 
-    page.get_by_text("Aarhus").click()
+    page.get_by_text("Næstved").click()
     page.wait_for_timeout(2000)
 
     page.get_by_text("1 person").click()
